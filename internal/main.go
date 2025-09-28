@@ -34,6 +34,10 @@ func main() {
 	authService := service.NewAuthService(db)
 	authController := controller.NewAuthController(authService)
 
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "<h1>Enta GAYYY</h1>")
+	})
+
 	router.POST("/auth/register", authController.Register)
 	router.POST("/auth/login", authController.Login)
 
