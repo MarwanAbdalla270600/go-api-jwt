@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,7 +15,7 @@ func BuildDatabaseUrl() string {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	database := os.Getenv("DB_NAME")
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, database)
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, database)
 }
 
 func HashPassword(password string) string {
@@ -29,9 +28,6 @@ func ComparePasswords(hashedPassword, plainPassword string) bool {
 	return err == nil
 }
 
-func GenerateUUID() string {
-	return uuid.New().String()
-}
 
 func GenerateJWT(userID string, email string, role string) string {
 	claims := jwt.MapClaims{

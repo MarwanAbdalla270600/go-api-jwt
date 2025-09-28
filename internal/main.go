@@ -9,9 +9,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql" // mysql driver
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq" // postgres driver
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 
 	//connect to database
 	dsn := utils.BuildDatabaseUrl()
-	db, err := sqlx.Connect("mysql", dsn)
+	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		log.Fatalln("failed to connect:", err)
 	}

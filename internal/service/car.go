@@ -8,7 +8,7 @@ import (
 
 type CarInterface interface {
 	GetCars() ([]entity.Car, error)
-	GetCarById() (*entity.Car, error)
+	GetCarById(id string) (*entity.Car, error)
 }
 
 type carService struct {
@@ -20,10 +20,19 @@ func NewCarService(db *sqlx.DB) CarInterface {
 }
 
 func (s *carService) GetCars() ([]entity.Car, error) {
-	return nil, nil
+	var cars []entity.Car
+	err := s.db.Select(&cars, "SELECT * FROM cars")
+	if err != nil {
+		return nil, err
+	}
+	return cars, nil
 }
 
-func (s *carService) GetCarById() (*entity.Car, error) {
-	return nil, nil
-
+func (s *carService) GetCarById(id string) (*entity.Car, error) {
+	var car entity.Car
+	err := s.db.Get(&car, "SELECT * FROM cars WHERE id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+	return &car, nil
 }

@@ -22,21 +22,25 @@ func NewAuthService(db *sqlx.DB) AuthServiceInterface {
 }
 
 func (s *authService) Register(data entity.RegisterRequest) (*entity.UserDTO, error) {
-	uuid := utils.GenerateUUID()
-	_, err := s.db.Exec(`INSERT INTO users (id, first_name, last_name, email, hashed_password, role)
-		VALUES (?, ?, ?, ?, ?, ?)`,
-		uuid, data.FirstName, data.LastName, data.Email, utils.HashPassword(data.Password), "USER",
+	var user entity.User
+	err := s.db.Get(&user, `
+    INSERT INTO users (first_name, last_name, email, password)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, first_name, last_name, email, role, created_at, updated_at
+`,
+		data.FirstName, data.LastName, data.Email, utils.HashPassword(data.Password),
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &entity.UserDTO{Id: uuid,
-			FirstName: data.FirstName,
-			LastName:  data.LastName,
-			Email:     data.Email,
-			Role:      data.Role,
+	return &entity.UserDTO{Id: user.Id,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+			Role:      user.Role,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		},
 		nil
 }
@@ -44,8 +48,8 @@ func (s *authService) Register(data entity.RegisterRequest) (*entity.UserDTO, er
 func (s *authService) Login(data entity.LoginRequest) (*entity.LoginResponse, error) {
 	//get user from database
 	var user entity.User
-	err := s.db.Get(&user, `SELECT id, first_name, last_name, email, hashed_password, role FROM users 
-	WHERE email = ?`, data.Email)
+	err := s.db.Get(&user, `SELECT id, first_name, last_name, email, password, role FROM users 
+	WHERE email = $1`, data.Email)
 	if err != nil {
 		return nil, err
 	}
