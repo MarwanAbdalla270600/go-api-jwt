@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -21,6 +22,9 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, falling back to system env")
 	}
+
+	router.Use(cors.Default())
+
 
 	//connect to database
 	dsn := utils.BuildDatabaseUrl()
