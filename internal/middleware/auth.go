@@ -10,40 +10,52 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type Claims struct {
+	Email string `json:"email"`
+	jwt.RegisteredClaims
+}
+
 func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		// Get Authorization header
-		authHeader := c.GetHeader("Authorization")
+		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing Authorization header"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing Authorization header"})
 			return
 		}
 
 		// Expect "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
 			return
 		}
 
 		tokenString := parts[1]
 
-		// Parse token
+		// Parse token with claims
 		secret := []byte(os.Getenv("SECRET"))
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		claims := &Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
+			// Verify signing method
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method")
 			}
 			return secret, nil
 		})
 
+		// Handle parse error OR expired/invalid token
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-			c.Abort()
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			return
 		}
 
-		// ✅ Token is valid → continue
-		c.Next()
+		// ✅ At this point, claims.Exp is automatically validated by jwt library
+		// You can set values into Gin context for handlers to use
+		ctx.Set("userID", claims.Subject)
+		ctx.Set("email", claims.Email)
+
+		ctx.Next()
 	}
 }

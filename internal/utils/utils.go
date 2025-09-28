@@ -45,8 +45,6 @@ func GenerateJWT(userID string, email string) string {
 
 	// get secret and cast to []byte
 	jwtSecret := []byte(os.Getenv("SECRET"))
-
 	tokenString, _ := token.SignedString(jwtSecret)
-
 	return tokenString
 }
