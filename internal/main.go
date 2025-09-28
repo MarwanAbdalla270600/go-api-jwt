@@ -2,9 +2,11 @@ package main
 
 import (
 	"go-api-jwt/internal/controller"
+	"go-api-jwt/internal/middleware"
 	"go-api-jwt/internal/service"
 	"go-api-jwt/internal/utils"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql" // mysql driver
@@ -34,5 +36,10 @@ func main() {
 
 	router.POST("/auth/register", authController.Register)
 	router.POST("/auth/login", authController.Login)
+
+	//testroute
+	router.GET("/protected", middleware.AuthMiddleware(), func(ctx *gin.Context) {
+		ctx.JSON(http.StatusAccepted, "YOU DID IT!!")
+	})
 	router.Run(":8080")
 }

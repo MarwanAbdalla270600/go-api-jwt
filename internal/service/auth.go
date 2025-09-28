@@ -53,6 +53,7 @@ func (s *authService) Login(data entity.LoginRequest) (*entity.LoginResponse, er
 		return nil, errors.New("invalid password")
 	}
 
+	//create response with token
 	response := entity.LoginResponse{
 		Token: utils.GenerateJWT(user.Id, user.Email),
 		User: entity.UserDTO{

@@ -1,11 +1,11 @@
 package entity
 
 type User struct {
-	Id             string
-	FirstName      string
-	LastName       string
-	Email          string
-	HashedPassword string
+	Id             string `db:"id"`
+	FirstName      string `db:"first_name"`
+	LastName       string `db:"last_name"`
+	Email          string `db:"email"`
+	HashedPassword string `db:"hashed_password"`
 }
 
 type UserDTO struct {

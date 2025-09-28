@@ -35,14 +35,17 @@ func GenerateUUID() string {
 
 func GenerateJWT(userID string, email string) string {
 	claims := jwt.MapClaims{
-		"sub":   userID,                               // subject (user identifier)
-		"email": email,                                // custom claim
+		"sub":   userID,
+		"email": email,
 		"exp":   time.Now().Add(time.Hour * 1).Unix(), // expires in 1 hour
-		"iat":   time.Now().Unix(),                    // issued at
+		"iat":   time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	jwtSecret := os.Getenv("SECRET")
+
+	// get secret and cast to []byte
+	jwtSecret := []byte(os.Getenv("SECRET"))
+
 	tokenString, _ := token.SignedString(jwtSecret)
 
 	return tokenString
