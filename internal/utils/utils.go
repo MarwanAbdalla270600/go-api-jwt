@@ -38,7 +38,7 @@ func GenerateJWT(userID string, email string, role string) string {
 		"sub":   userID,
 		"email": email,
 		"role":  role,
-		"exp":   time.Now().Add(time.Hour * 1).Unix(), // expires in 1 hour
+		"exp":   time.Now().Add(time.Hour * 6).Unix(), // expires in 6 hour
 		"iat":   time.Now().Unix(),
 	}
 

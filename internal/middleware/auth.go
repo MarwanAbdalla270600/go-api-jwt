@@ -51,7 +51,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ✅ At this point, claims.Exp is automatically validated by jwt library
+		// At this point, claims.Exp is automatically validated by jwt library
 		// You can set values into Gin context for handlers to use
 		ctx.Set("userID", claims.Subject)
 		ctx.Set("email", claims.Email)
