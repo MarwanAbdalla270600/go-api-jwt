@@ -33,10 +33,11 @@ func GenerateUUID() string {
 	return uuid.New().String()
 }
 
-func GenerateJWT(userID string, email string) string {
+func GenerateJWT(userID string, email string, role string) string {
 	claims := jwt.MapClaims{
 		"sub":   userID,
 		"email": email,
+		"role":  role,
 		"exp":   time.Now().Add(time.Hour * 1).Unix(), // expires in 1 hour
 		"iat":   time.Now().Unix(),
 	}

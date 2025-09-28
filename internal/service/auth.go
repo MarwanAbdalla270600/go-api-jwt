@@ -23,9 +23,9 @@ func NewAuthService(db *sqlx.DB) AuthServiceInterface {
 
 func (s *authService) Register(data entity.RegisterRequest) (*entity.UserDTO, error) {
 	uuid := utils.GenerateUUID()
-	_, err := s.db.Exec(`INSERT INTO users (id, first_name, last_name, email, hashed_password)
-		VALUES (?, ?, ?, ?, ?)`,
-		uuid, data.FirstName, data.LastName, data.Email, utils.HashPassword(data.Password),
+	_, err := s.db.Exec(`INSERT INTO users (id, first_name, last_name, email, hashed_password, role)
+		VALUES (?, ?, ?, ?, ?, ?)`,
+		uuid, data.FirstName, data.LastName, data.Email, utils.HashPassword(data.Password), "USER",
 	)
 
 	if err != nil {
@@ -35,14 +35,16 @@ func (s *authService) Register(data entity.RegisterRequest) (*entity.UserDTO, er
 	return &entity.UserDTO{Id: uuid,
 			FirstName: data.FirstName,
 			LastName:  data.LastName,
-			Email:     data.Email},
+			Email:     data.Email,
+			Role:      data.Role,
+		},
 		nil
 }
 
 func (s *authService) Login(data entity.LoginRequest) (*entity.LoginResponse, error) {
 	//get user from database
 	var user entity.User
-	err := s.db.Get(&user, `SELECT id, first_name, last_name, email, hashed_password FROM users 
+	err := s.db.Get(&user, `SELECT id, first_name, last_name, email, hashed_password, role FROM users 
 	WHERE email = ?`, data.Email)
 	if err != nil {
 		return nil, err
@@ -55,11 +57,12 @@ func (s *authService) Login(data entity.LoginRequest) (*entity.LoginResponse, er
 
 	//create response with token
 	response := entity.LoginResponse{
-		Token: utils.GenerateJWT(user.Id, user.Email),
+		Token: utils.GenerateJWT(user.Id, user.Email, user.Role),
 		User: entity.UserDTO{
 			Id:        user.Id,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
+			Role:      user.Role,
 		},
 	}
 
