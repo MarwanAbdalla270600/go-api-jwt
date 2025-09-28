@@ -3,7 +3,9 @@ package utils
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,6 +24,26 @@ func HashPassword(password string) string {
 	return string(bytes)
 }
 
+func ComparePasswords(hashedPassword, plainPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
+	return err == nil
+}
+
 func GenerateUUID() string {
 	return uuid.New().String()
+}
+
+func GenerateJWT(userID string, email string) string {
+	claims := jwt.MapClaims{
+		"sub":   userID,                               // subject (user identifier)
+		"email": email,                                // custom claim
+		"exp":   time.Now().Add(time.Hour * 1).Unix(), // expires in 1 hour
+		"iat":   time.Now().Unix(),                    // issued at
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	jwtSecret := os.Getenv("SECRET")
+	tokenString, _ := token.SignedString(jwtSecret)
+
+	return tokenString
 }

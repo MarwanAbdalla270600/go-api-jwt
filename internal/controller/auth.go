@@ -53,5 +53,14 @@ func (c *authController) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, "This is login endpoint")
+
+	data, err := c.service.Login(body)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, data)
+
 }
