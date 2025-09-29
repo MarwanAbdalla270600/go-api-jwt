@@ -23,8 +23,13 @@ func main() {
 		log.Println("No .env file found, falling back to system env")
 	}
 
-	router.Use(cors.Default())
-
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+	}))
 
 	//connect to database
 	dsn := utils.BuildDatabaseUrl()
